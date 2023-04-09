@@ -9,6 +9,16 @@ User registration
 
 Seller registration
 
+Adding Products
+
+Adding items to cart to checkout later
+
+View the items in the cart
+
+View all the history of orders placed by the customer
+
+Checkout all the items in the cart and place orders
+
 Adding products by sellers
 
 Placing orders by customers
