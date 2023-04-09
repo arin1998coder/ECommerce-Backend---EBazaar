@@ -2,6 +2,7 @@ package com.BadaBazaar.Ecommerce.converter;
 
 
 import com.BadaBazaar.Ecommerce.dtos.ItemResponseDTO;
+import com.BadaBazaar.Ecommerce.dtos.ItemsRemovedResponseDTO;
 import com.BadaBazaar.Ecommerce.model.Item;
 import com.BadaBazaar.Ecommerce.model.Product;
 import lombok.experimental.UtilityClass;
@@ -19,6 +20,16 @@ public class ItemConverter {
                 .price(product.getPrice())
                 .category(product.getCategory())
                 .productStatus(product.getProductStatus())
+                .build();
+    }
+
+    public static ItemsRemovedResponseDTO ItemToItemRemovalResponseDTO(Item item){
+
+        return ItemsRemovedResponseDTO.builder()
+                .itemId(item.getId())
+                .productName(item.getProduct().getName())
+                .quantity(item.getRequiredQuantity())
+                .price(item.getProduct().getPrice())
                 .build();
     }
 }

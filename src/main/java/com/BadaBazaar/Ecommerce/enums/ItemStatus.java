@@ -4,5 +4,7 @@ public enum ItemStatus {
 
     VIEWED,
     ADDED_TO_CART,
-    ORDERED
+    ORDERED,
+
+    REMOVED_FROM_CART
 }

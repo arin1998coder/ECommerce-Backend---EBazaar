@@ -10,6 +10,7 @@ import com.BadaBazaar.Ecommerce.repository.CardRepository;
 import com.BadaBazaar.Ecommerce.repository.CustomerRepository;
 import com.BadaBazaar.Ecommerce.repository.OrderedRepository;
 import com.BadaBazaar.Ecommerce.repository.ProductRepository;
+import com.BadaBazaar.Ecommerce.service.EmailService;
 import com.BadaBazaar.Ecommerce.service.OrderedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,10 @@ import java.time.LocalDate;
 import java.util.Date;
 
 @Service
-public class OrderedServiceImpl extends Thread implements OrderedService  {
+public class OrderedServiceImpl implements OrderedService  {
+
+    @Autowired
+    EmailService emailService;
 
     @Autowired
     CustomerRepository customerRepository;
@@ -144,8 +148,14 @@ public class OrderedServiceImpl extends Thread implements OrderedService  {
 
         customerRepository.save(customer);
 
-        //make the OrderResponseDTO and return it
+        //send order placed mail to customer
+        String subject = "EBazaar Order Confirmation Mail";
+        String msgBody = "Hurray!! Your order has been placed successfully!\n\nOrder Id: "+orderRepository.findLastOrderId()
+                +"\nProduct name: "+product.getName()+"\nQuantity: "+requiredQuantity+"\nPrice: "+product.getPrice()+"\nDelivery Charge: "+deliveryCharge+"\nTotal Cost: "+totalCost+"\n\nYour Order will be delivered Asap.\n\nThank You for Shopping with us!";
 
+        emailService.sendMail(msgBody,subject);
+
+        //make the OrderResponseDTO and return it
         return OrderResponseDto.builder()
                 .orderId(orderRepository.findLastOrderId())
                 .orderDate(orderRepository.findLastOrderDate())

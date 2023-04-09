@@ -1,9 +1,6 @@
 package com.BadaBazaar.Ecommerce.controller;
 
-import com.BadaBazaar.Ecommerce.dtos.AddToCartRequestDto;
-import com.BadaBazaar.Ecommerce.dtos.CheckOutRequestDto;
-import com.BadaBazaar.Ecommerce.dtos.ItemAddedToCartResponseDto;
-import com.BadaBazaar.Ecommerce.dtos.OrderResponseDto;
+import com.BadaBazaar.Ecommerce.dtos.*;
 import com.BadaBazaar.Ecommerce.repository.CartRepository;
 import com.BadaBazaar.Ecommerce.service.CartService;
 import com.BadaBazaar.Ecommerce.service.impl.CartServiceImpl;
@@ -65,4 +62,17 @@ public class CartController {
         return new ResponseEntity<>(listOfOrdersPlaced,HttpStatus.OK);
     }
 
+    @PutMapping("/remove")
+    public ResponseEntity removeItemsFromCart(@RequestBody ItemsRemoveRequestDTO itemsRemoveRequestDTO){
+
+        List<ItemsRemovedResponseDTO> responseDTOList;
+
+        try{
+            responseDTOList = cartService.removeItemsFromCart(itemsRemoveRequestDTO);
+        }
+        catch (Exception e){
+            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity(responseDTOList,HttpStatus.ACCEPTED);
+    }
 }

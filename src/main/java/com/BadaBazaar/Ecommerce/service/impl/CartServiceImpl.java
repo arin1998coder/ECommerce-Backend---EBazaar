@@ -1,5 +1,6 @@
 package com.BadaBazaar.Ecommerce.service.impl;
 
+import com.BadaBazaar.Ecommerce.converter.ItemConverter;
 import com.BadaBazaar.Ecommerce.converter.ProductConverter;
 import com.BadaBazaar.Ecommerce.dtos.*;
 import com.BadaBazaar.Ecommerce.enums.ItemStatus;
@@ -8,6 +9,7 @@ import com.BadaBazaar.Ecommerce.exception.*;
 import com.BadaBazaar.Ecommerce.model.*;
 import com.BadaBazaar.Ecommerce.repository.*;
 import com.BadaBazaar.Ecommerce.service.CartService;
+import com.BadaBazaar.Ecommerce.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,9 @@ import java.util.List;
 
 @Service
 public class CartServiceImpl implements CartService {
+
+    @Autowired
+    EmailService emailService;
 
     @Autowired
     CartRepository cartRepository;
@@ -32,6 +37,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     OrderedRepository orderRepository;
+
+    @Autowired
+    ItemRepository itemRepository;
 
 
     @Override
@@ -158,25 +166,27 @@ public class CartServiceImpl implements CartService {
 
         int count = 0;
 
-        for(Item item : cart.getItemList()){
+        int cartTotal = cart.getCartTotal();
 
-            //place order
-            int deliveryCharge;
-            //calculate total cost
-           int cost =  item.getProduct().getPrice() * item.getRequiredQuantity();
-
+        int deliveryCharge;
             //lets assign a delivery charge
-            if(cost>=5000){
+            if(cartTotal>=5000){
                 deliveryCharge = 20;
             }
-            else if (cost>=2000){
+            else if (cartTotal>=2000){
                 deliveryCharge = 40;
             }
-            else if(cost>=500){
+            else if(cartTotal>=500){
                 deliveryCharge = 60;
             }
             else
                 deliveryCharge = 100;
+
+        for(Item item : cart.getItemList()){
+
+            //place order
+            //calculate total cost
+           int cost =  item.getProduct().getPrice() * item.getRequiredQuantity();
 
             //total cost
             int totalCost=cost + deliveryCharge;
@@ -220,6 +230,13 @@ public class CartServiceImpl implements CartService {
                     .build();
 
             orderResponseDtoList.add(orderResponseDto);
+
+            //send order placed mail to customer
+            String subject = "EBazaar Order Confirmation Mail";
+            String msgBody = "Hurray!! Your order has been placed successfully!\n\nOrder Id: "+orderRepository.findLastOrderId()+count
+                    +"\nProduct name: "+item.getProduct().getName()+"\nQuantity: "+item.getRequiredQuantity()+"\nPrice: "+item.getProduct().getPrice()+"\nDelivery Charge: "+deliveryCharge+"\nTotal Cost: "+totalCost+"\n\nYour Order will be delivered Asap.\n\nThank You for Shopping with us!";
+
+            emailService.sendMail(msgBody,subject);
         }
 
         //empty the cart
@@ -267,6 +284,62 @@ public class CartServiceImpl implements CartService {
         }
 
         return listOfItemsInCart;
+
+    }
+
+    @Override
+    public List<ItemsRemovedResponseDTO> removeItemsFromCart(ItemsRemoveRequestDTO itemsRemoveRequestDTO) throws Exception {
+
+        int customerId = itemsRemoveRequestDTO.getCustomerId();
+        List<Integer> itemids = itemsRemoveRequestDTO.getItemIds();
+
+        List<ItemsRemovedResponseDTO> listOfItemsRemovedResponseDTO = new ArrayList<>();
+
+
+        Customer customer;
+        //valid customer id
+        try{
+            customer = customerRepository.findById(customerId).get();
+        }
+        catch (Exception e){
+            throw new CustomerNotFoundException();
+        }
+
+        int countOfItemsRemoved = 0;
+
+        //get cart of customer
+        Cart cart = customer.getCart();
+
+        for(int itemId:itemids){
+
+            Item item = null;
+            try{
+                item = itemRepository.findById(itemId).get();
+            }
+            catch (Exception e){
+                System.out.println("Item id : "+itemId+" doesn't exist");
+                continue;
+            }
+            //item id is valid, but i need to check whether it belongs to the given customers cart or not
+            if(cart.getItemList().contains(item)){
+                item.setItemStatus(ItemStatus.REMOVED_FROM_CART);
+                item.setCart(null);
+                cart.getItemList().remove(item);
+                cart.setCartTotal(cart.getCartTotal() - item.getRequiredQuantity() * item.getProduct().getPrice());
+
+                countOfItemsRemoved++;
+            }
+
+            ItemsRemovedResponseDTO itemsRemovedResponseDTO = ItemConverter.ItemToItemRemovalResponseDTO(item);
+
+            listOfItemsRemovedResponseDTO.add(itemsRemovedResponseDTO);
+        }
+        if(countOfItemsRemoved==0){
+            throw new Exception("No Items were Removed!");
+        }
+        cartRepository.save(cart);
+
+        return listOfItemsRemovedResponseDTO;
 
     }
 }
