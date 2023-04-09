@@ -2,6 +2,7 @@ package com.BadaBazaar.Ecommerce.service.impl;
 
 import com.BadaBazaar.Ecommerce.dtos.OrderRequestDto;
 import com.BadaBazaar.Ecommerce.dtos.OrderResponseDto;
+import com.BadaBazaar.Ecommerce.enums.ItemStatus;
 import com.BadaBazaar.Ecommerce.enums.ProductStatus;
 import com.BadaBazaar.Ecommerce.exception.*;
 import com.BadaBazaar.Ecommerce.model.*;
@@ -137,6 +138,7 @@ public class OrderedServiceImpl extends Thread implements OrderedService  {
         item.setRequiredQuantity(requiredQuantity);
         item.setProduct(product);
         item.setOrdered(newOrder);
+        item.setItemStatus(ItemStatus.ORDERED);
 
         newOrder.getItems().add(item);
 

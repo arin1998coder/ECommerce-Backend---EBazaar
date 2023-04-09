@@ -1,5 +1,6 @@
 package com.BadaBazaar.Ecommerce.model;
 
+import com.BadaBazaar.Ecommerce.enums.ItemStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,5 +30,10 @@ public class Item {
     @ManyToOne
     @JoinColumn
     private Ordered ordered;
+
+    @Enumerated(EnumType.STRING)
+    private ItemStatus itemStatus;
+
+
 
 }

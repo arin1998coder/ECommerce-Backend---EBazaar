@@ -1,5 +1,6 @@
 package com.BadaBazaar.Ecommerce.converter;
 
+import com.BadaBazaar.Ecommerce.dtos.ItemAddedToCartResponseDto;
 import com.BadaBazaar.Ecommerce.dtos.ItemResponseDTO;
 import com.BadaBazaar.Ecommerce.dtos.ProductAddRequestDto;
 import com.BadaBazaar.Ecommerce.dtos.ProductResponseDto;
@@ -34,6 +35,17 @@ public class ProductConverter {
                 .quantity(product.getQuantity())
                 .category(product.getCategory())
                 .productStatus(ProductStatus.AVAILABLE)
+                .build();
+    }
+
+    //converts product to ItemAddedToCartResponseDto
+    public static ItemAddedToCartResponseDto productToItemAddedToCartResponseDTO(Product product,int quantity){
+
+        return ItemAddedToCartResponseDto.builder()
+                .productName(product.getName())
+                .category(product.getCategory())
+                .price(product.getPrice())
+                .quantity(quantity)
                 .build();
     }
 

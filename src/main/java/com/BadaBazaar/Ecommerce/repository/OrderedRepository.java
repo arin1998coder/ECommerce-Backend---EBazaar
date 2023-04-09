@@ -15,6 +15,6 @@ public interface OrderedRepository extends JpaRepository<Ordered, Integer> {
     int findLastOrderId();
 
 
-    @Query(value = "SELECT o.orderDate FROM Order o ORDER BY o.orderDate DESC",nativeQuery = true)
+    @Query(value = "SELECT o.order_date FROM orders o ORDER BY o.order_date DESC limit 1",nativeQuery = true)
     Date findLastOrderDate();
 }

@@ -2,6 +2,7 @@ package com.BadaBazaar.Ecommerce.service.impl;
 
 import com.BadaBazaar.Ecommerce.converter.ItemConverter;
 import com.BadaBazaar.Ecommerce.dtos.ItemResponseDTO;
+import com.BadaBazaar.Ecommerce.enums.ItemStatus;
 import com.BadaBazaar.Ecommerce.exception.ProductNotFoundException;
 import com.BadaBazaar.Ecommerce.model.Item;
 import com.BadaBazaar.Ecommerce.model.Product;
@@ -38,6 +39,8 @@ public class ItemServiceImpl implements ItemService {
 
         item.setProduct(product);
         product.setItem(item); //map the product to the items, since now this product has become an items
+
+        item.setItemStatus(ItemStatus.VIEWED);
 
 
         ItemResponseDTO itemResponseDTO = ItemConverter.productToItemResponseDTO(item);
